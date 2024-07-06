@@ -1,13 +1,20 @@
 const express = require("express");
 const path = require("path");
-const DBTest = require("./configs/db");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
+const {test} = require("./configs/db");
 
 const app = express();
 app.use(express.json());
 
+//! routers
+const areaRouter = require("./routes/area_router");
+
+app.use("/area", areaRouter);
+
+
+// ! Testing the connection
 app.get("/", async (req, res) => {
-  const result = await DBTest();
+  const result = await test();
   res.send(result);
 });
 
