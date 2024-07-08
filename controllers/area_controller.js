@@ -15,8 +15,7 @@ const getDistrict = async (req, res) => {
       res.send("Districts not found").status(404);
       return;
     }
-    const districts = result.map((district) => district.district_name);
-    res.send(districts).status(200);
+    res.send(result).status(200);
   } catch (error) {
     res.send(error).status(500);
   }
@@ -36,7 +35,6 @@ const getDistrictId = async (req, res) => {
   }
 };
 
-
 const getBlockByDistrict = async (req, res) => {
   try {
     const { dist_name } = req.params;
@@ -50,8 +48,7 @@ const getBlockByDistrict = async (req, res) => {
       res.send("Block not found").status(404);
       return;
     }
-    const blocks = result.map((block) => block.block_name);
-    res.send(blocks).status(200);
+    res.send(result).status(200);
   } catch (error) {
     res.send(error).status(500);
   }
@@ -70,13 +67,11 @@ const getGpByBlock = async (req, res) => {
       res.send("GP not found").status(404);
       return;
     }
-    const gps = result.map((gp) => gp.gp_name);
-    res.send(gps).status(200);
+    res.send(result).status(200);
   } catch (error) {
     res.send(error).status(500);
   }
 };
-
 
 module.exports = {
   getDistrictId,

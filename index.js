@@ -3,10 +3,13 @@ const path = require("path");
 require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 const mysql = require("mysql2");
 const { test } = require("./configs/db");
+const cors = require("cors");
 
 const app = express();
 
 app.use(express.json());
+
+app.use(cors());
 
 //! routers
 const areaRouter = require("./routes/area_router");
@@ -38,6 +41,6 @@ connecton.connect((err) => {
   }
   console.log("Database Connection successful");
   app.listen(port, () => {
-    console.log("Server is running on port 3000");
+    console.log(`Server is running on port ${port}`);
   });
 });
