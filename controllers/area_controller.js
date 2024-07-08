@@ -5,6 +5,7 @@ const {
   getBlockBydistrictId,
   getBlocks,
   getGpIdByName,
+  getGpByBlockId,
 } = require("../models/area_schema");
 
 const getDistrict = async (req, res) => {
@@ -56,5 +57,30 @@ const getBlockByDistrict = async (req, res) => {
   }
 };
 
+const getGpByBlock = async (req, res) => {
+  try {
+    const { block_name } = req.params;
+    const blockId = await getBlockIdByName(block_name);
+    if (blockId.length === 0) {
+      res.send("Block not found").status(404);
+      return;
+    }
+    const result = await getGpByBlockId(blockId[0].block_id);
+    if (result.length === 0) {
+      res.send("GP not found").status(404);
+      return;
+    }
+    const gps = result.map((gp) => gp.gp_name);
+    res.send(gps).status(200);
+  } catch (error) {
+    res.send(error).status(500);
+  }
+};
 
-module.exports = { getDistrictId, getDistrict, getBlockByDistrict};
+
+module.exports = {
+  getDistrictId,
+  getDistrict,
+  getBlockByDistrict,
+  getGpByBlock,
+};
