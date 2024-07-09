@@ -10,6 +10,16 @@ const validateIMEI = async (gpID) => {
     }
 }
 
+const findEMEIbyID = async (imei_id) => {
+  try {
+    const sql = `select imei_number from imei_numbers where imei_id = '${imei_id}'`;
+    const [rows, fields] = await pool.query(sql);
+    return rows;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 const userSchema = async (district, block, gp, imei) => {
   try {
     const sql = `INSERT INTO users (district_name, block_name, gp_name, imei_number) VALUES (?, ?, ?, ?)`;
@@ -20,4 +30,4 @@ const userSchema = async (district, block, gp, imei) => {
   }
 };
 
-module.exports = { validateIMEI, userSchema };
+module.exports = { validateIMEI, userSchema, findEMEIbyID};

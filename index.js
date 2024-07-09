@@ -14,9 +14,12 @@ app.use(cors());
 //! routers
 const areaRouter = require("./routes/area_router");
 const authRouter = require("./routes/auth_router");
+const userRouter = require("./routes/user_router");
 
 app.use("/area", areaRouter);
 app.use("/auth", authRouter);
+app.use("/user", userRouter);
+
 
 // ! Testing the connection
 app.get("/", async (req, res) => {
