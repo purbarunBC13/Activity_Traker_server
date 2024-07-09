@@ -5,60 +5,136 @@ const {
   findWorkID,
   updateWorkStatus,
   checkWorkStatus,
+  updateListOfActivity,
 } = require("../models/progress_schema");
 
 const postProgressData = async (req, res) => {
   try {
     const data = req.body;
+
     if (!data.work_id) {
-      res.send("Please provide work_id").status(400);
+      res.status(400).send({
+        message: "Please provide a work id",
+      });
+      return;
+    } else if (!data.work_status) {
+      res.status(400).send({
+        message: "Please provide a work status",
+      });
       return;
     }
 
-    
     const WorkId = await findWorkID(data);
     const work_status = await checkWorkStatus(data);
-
+    const valid = await checkValidation(data);
 
     if (WorkId.length === 0) {
+      if (
+        data.work_status === "Completed" ||
+        data.work_status === "Work in progress"
+      ) {
+        res.status(404).send({
+          message: "Work is not yet initialized",
+        });
+        return;
+      }
+
       if (data.work_status === "Yet to be started") {
         const workData = await postProgress(data);
-        if (workData.affectedRows === 0) {
-          res.send("Failed to update progress").status(404);
+        const ListOfActivity = await updateListOfActivity(data);
+        if (workData.affectedRows === 0 || ListOfActivity.affectedRows === 0) {
+          res.status(404).send({
+            message: "Failed to initialize progress",
+          });
           return;
         }
-        res.send("Progress initialized successfully").status(200);
-      } else {
-        res.send("Work Id not found").status(404);
+        res.status(200).send({
+          message: "Progress initialized successfully",
+        });
+        return;
       }
     }
 
+    if (WorkId.length === 1 && valid[0].valid === 0) {
+      res.status(404).send("Work is already completed");
+      return;
+    }
+
+    if (data.work_status === "Yet to be started" && WorkId.length === 1) {
+      res.status(404).send({
+        message: "Work is already initialized",
+      });
+      return;
+    }
+
+    if (work_status.length === "new") {
+      res.status(404).send({
+        message: "Work is not yet initialized",
+      });
+      return;
+    }
+
+    if (
+      work_status[0].work_status === "Yet to be started" &&
+      data.work_status === "Yet to be started"
+    ) {
+      res.status(404).send({
+        message: "Work is already initialized",
+      });
+      return;
+    }
+
     if (data.work_status === "Work in progress") {
-      if (work_status[0].work_status === "Yet to be started") {
+      if (
+        work_status[0].work_status === "Yet to be started" ||
+        work_status[0].work_status === "Work in progress"
+      ) {
         const workData = await updateWorkStatus(data);
-        if (workData.affectedRows === 0) {
-          res.send("Failed to update progress").status(404);
+        const ListOfActivity = await updateListOfActivity(data);
+        if (workData.affectedRows === 0 || ListOfActivity.affectedRows === 0) {
+          res.status(404).send({
+            message: "Failed to update progress",
+          });
           return;
         }
-        res.send("Progress updated successfully").status(200);
+        res.status(200).send({
+          message: "Work in progress",
+        });
+        return;
       }
     }
 
     if (data.work_status === "Completed") {
       if (work_status[0].work_status === "Work in progress") {
         const workData = await updateWorkStatus(data);
+        const ListOfActivity = await updateListOfActivity(data);
         const valid = await setValidation(data);
-        if (workData.affectedRows === 0 || valid.affectedRows === 0) {
-          res.send("Failed to update progress").status(404);
+        if (
+          workData.affectedRows === 0 ||
+          valid.affectedRows === 0 ||
+          ListOfActivity.affectedRows === 0
+        ) {
+          res.status(404).send({
+            message: "Failed to update progress",
+          });
           return;
         }
-        res.send("Progress updated successfully").status(200);
-      }else{
-        res.send("Work is not in progress").status(404);
+        res.status(200).send({
+          message: "Work completed",
+        });
+        return;
+      } else {
+        res.status(404).send({
+          message: "Work is not in progress",
+        });
+        return;
       }
     }
+    res.status(400).send({
+      message: "Invalid request",
+    });
   } catch (error) {
-    res.send(error).status(500);
+    res.status(500).send(error);
   }
 };
 
