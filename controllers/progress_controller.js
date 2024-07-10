@@ -6,6 +6,7 @@ const {
   updateWorkStatus,
   checkWorkStatus,
   updateListOfActivity,
+  fetchWorkId,
 } = require("../models/progress_schema");
 
 const postProgressData = async (req, res) => {
@@ -56,7 +57,7 @@ const postProgressData = async (req, res) => {
     }
 
     if (WorkId.length === 1 && valid[0].valid === 0) {
-      res.status(404).send("Work is already completed");
+      res.status(404).send({message: "Work is not yet validated"});
       return;
     }
 
@@ -134,8 +135,35 @@ const postProgressData = async (req, res) => {
       message: "Invalid request",
     });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({ message: error.message });
   }
 };
 
-module.exports = { postProgressData };
+// make a api to fetch all work ids 
+
+const getWorkIds = async (req, res) => {
+  try {
+    const workId = await fetchWorkId();
+    res.status(200).send(workId);
+  } catch (error) {
+    res.status(500).send(error);
+}
+};
+
+// get the current status of the work
+
+// const getWorkStatus = async (req, res) => {
+//   try {
+//     const workStatus = await fetchWorkStatus();
+//     res.status(200).send(workStatus);
+//   } catch (error) {
+//     res.status(500).send(error);
+// };
+// };
+   
+
+
+
+
+
+module.exports = { postProgressData, getWorkIds };
