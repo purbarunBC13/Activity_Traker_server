@@ -49,6 +49,18 @@ const findWorkID = async (data) => {
   }
 };
 
+// fetch all work ids
+
+const fetchWorkId = async () => {
+  try {
+    const sql = `SELECT work_id FROM listofactivity`;
+    const [rows, fields] = await pool.query(sql);
+    return rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const checkWorkStatus = async (data) => {
   try {
     const { work_id } = data;
@@ -122,6 +134,7 @@ module.exports = {
   setValidation,
   checkValidation,
   findWorkID,
+  fetchWorkId,
   checkWorkStatus,
   updateWorkStatus,
   updateListOfActivity,

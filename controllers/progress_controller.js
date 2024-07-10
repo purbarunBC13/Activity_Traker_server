@@ -86,7 +86,7 @@ const postProgressData = async (req, res) => {
     }
 
     if (WorkId.length === 1 && valid[0].valid === 0) {
-      res.status(404).send("Work is already completed");
+      res.status(404).send({message: "Work is not yet validated"});
       return;
     }
 
@@ -164,8 +164,19 @@ const postProgressData = async (req, res) => {
       message: "Invalid request",
     });
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).send({ message: error.message });
   }
+};
+
+// make a api to fetch all work ids 
+
+const getWorkIds = async (req, res) => {
+  try {
+    const workId = await fetchWorkId();
+    res.status(200).send(workId);
+  } catch (error) {
+    res.status(500).send(error);
+}
 };
 
 const ProgressDetails = async (req, res) => {
@@ -260,4 +271,4 @@ const getLatestWorkDetails = async (req, res) => {
   }
 };
 
-module.exports = { postProgressData, ProgressDetails, getWorkStatus, getLatestWorkDetails };
+module.exports = { postProgressData, ProgressDetails, getWorkStatus, getLatestWorkDetails, getWorkIds };
