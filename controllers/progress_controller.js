@@ -181,11 +181,6 @@ const getWorkIds = async (req, res) => {
 
 const ProgressDetails = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).send({ message: "Please provide an image" });
-    }
-
-    const image = req.file.filename;
 
     // console.log(req.body);
 
@@ -195,10 +190,19 @@ const ProgressDetails = async (req, res) => {
       estimated_financial_overview: req.body.estimated_financial_overview,
       expected_completion_date: req.body.expected_completion_date,
       remark: req.body.remark,
-      image: image,
+      image: req.body.image,
     };
 
     // console.log(data);
+
+    if(data.image === undefined || data.image === "" || data.image === null) {
+      res.status(400).send({message: "Please provide an image"});
+      return;
+    }
+    
+    if (!data.work_id) {
+      return res.status(400).send({ message: "Please provide a work id" });
+    }
 
     const work_status = await checkWorkStatus(data);
 
