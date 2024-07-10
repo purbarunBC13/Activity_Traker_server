@@ -53,7 +53,7 @@ const findWorkID = async (data) => {
 
 const fetchWorkId = async () => {
   try {
-    const sql = `SELECT work_id FROM listofactivity`;
+    const sql = `SELECT work_id,work_desc FROM listofactivity`;
     const [rows, fields] = await pool.query(sql);
     return rows;
   } catch (error) {

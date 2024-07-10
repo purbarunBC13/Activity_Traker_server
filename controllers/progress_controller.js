@@ -8,6 +8,7 @@ const {
   updateListOfActivity,
   postProgressDetails,
   findLatestWorkDeatils,
+  fetchWorkId,
 } = require("../models/progress_schema");
 
 const getWorkStatus = async (req, res) => {
@@ -85,7 +86,7 @@ const postProgressData = async (req, res) => {
       }
     }
 
-    if (WorkId.length === 1 && valid[0].valid === 0) {
+    if (WorkId.length === 1 && valid[0].valird === 0) {
       res.status(404).send({message: "Work is not yet validated"});
       return;
     }
@@ -225,7 +226,7 @@ const ProgressDetails = async (req, res) => {
       }
       return res
         .status(200)
-        .send({ message: "Progress details updated successfully" });
+        .send({ message: "Work Progress details updated successfully" });
     }
 
     if (work_status[0].work_status === "Work in progress") {
