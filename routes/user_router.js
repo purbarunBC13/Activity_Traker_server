@@ -1,13 +1,12 @@
 const upload = require("../configs/multer");
-const {postProgressData , getWorkIds} = require("../controllers/progress_controller");
+const {postProgressData, ProgressDetails, getWorkStatus,getLatestWorkDetails , getWorkIds} = require("../controllers/progress_controller");
 const router = require("express").Router();
 
 router.post("/progress", postProgressData);
-
+router.post("/workStatus", getWorkStatus);
 router.get("/progress", getWorkIds);
 
-router.post("/upload", upload.single("image"), (req, res) => {
-  res.send("Image uploaded successfully");
-});
+router.post("/uploadProgress", upload.single("image"), ProgressDetails);
+router.get("/latestWorkDetails",getLatestWorkDetails);
 
 module.exports = router;
