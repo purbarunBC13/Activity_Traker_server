@@ -11,6 +11,8 @@ app.use(express.json());
 
 app.use(cors());
 
+app.use(express.static(path.join(__dirname, "uploads/images")));
+
 //! routers
 const areaRouter = require("./routes/area_router");
 const authRouter = require("./routes/auth_router");

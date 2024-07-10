@@ -82,6 +82,41 @@ const updateListOfActivity = async (data) => {
   }
 };
 
+const postProgressDetails = async (data) => {
+  try {
+    const {
+      remark,
+      estimated_physical_progress,
+      estimated_financial_overview,
+      image,
+      work_id,
+      expected_completion_date,
+    } = data;
+    const sql = `INSERT INTO ProgressDetails (remark,estimated_physical_progress,estimated_financial_overview,image,work_id,expected_completion_date) VALUES (?,?,?,?,?,?)`;
+    const [rows, fields] = await pool.query(sql, [
+      remark,
+      estimated_physical_progress,
+      estimated_financial_overview,
+      image,
+      work_id,
+      expected_completion_date,
+    ]);
+    return rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const findLatestWorkDeatils = async () => {
+  try {
+    const sql = "SELECT * FROM WorkDetails WHERE updated_at = (SELECT MAX(updated_at) FROM WorkDetails);";
+    const [rows, fields] = await pool.query(sql);
+    return rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   postProgress,
   setValidation,
@@ -90,4 +125,6 @@ module.exports = {
   checkWorkStatus,
   updateWorkStatus,
   updateListOfActivity,
+  postProgressDetails,
+  findLatestWorkDeatils,
 };

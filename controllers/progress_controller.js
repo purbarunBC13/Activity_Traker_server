@@ -6,7 +6,37 @@ const {
   updateWorkStatus,
   checkWorkStatus,
   updateListOfActivity,
+  postProgressDetails,
+  findLatestWorkDeatils,
 } = require("../models/progress_schema");
+
+const getWorkStatus = async (req, res) => {
+  try {
+    const data = req.body;
+    if (!data.work_id) {
+      res.status(400).send({
+        message: "Please provide a work id",
+      });
+      return;
+    }
+
+    const work_status = await checkWorkStatus(data);
+
+    if (work_status.length === 0) {
+      res.status(404).send({
+        message: "Work status not found",
+      });
+      return;
+    }
+
+    res.status(200).send({
+      message: "Work status found",
+      data: work_status,
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
 
 const postProgressData = async (req, res) => {
   try {
@@ -98,7 +128,7 @@ const postProgressData = async (req, res) => {
           return;
         }
         res.status(200).send({
-          message: "Work in progress",
+          message: "Work progress updated successfully",
         });
         return;
       }
@@ -138,4 +168,96 @@ const postProgressData = async (req, res) => {
   }
 };
 
-module.exports = { postProgressData };
+const ProgressDetails = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send({ message: "Please provide an image" });
+    }
+
+    const image = req.file.filename;
+
+    // console.log(req.body);
+
+    const data = {
+      work_id: req.body.work_id,
+      estimated_physical_progress: req.body.estimated_physical_progress,
+      estimated_financial_overview: req.body.estimated_financial_overview,
+      expected_completion_date: req.body.expected_completion_date,
+      remark: req.body.remark,
+      image: image,
+    };
+
+    // console.log(data);
+
+    const work_status = await checkWorkStatus(data);
+
+    if (work_status.length === 0) {
+      return res.status(404).send({ message: "Work status not found" });
+    }
+
+    if (
+      work_status[0].work_status === "Yet to be started" ||
+      work_status[0].work_status === "Completed"
+    ) {
+      if (!data.remark) {
+        return res.status(400).send({ message: "Please provide a remark" });
+      }
+      const progressDetails = await postProgressDetails(data);
+      if (progressDetails.affectedRows === 0) {
+        return res
+          .status(404)
+          .send({ message: "Failed to update progress details" });
+      }
+      return res
+        .status(200)
+        .send({ message: "Progress details updated successfully" });
+    }
+
+    if (work_status[0].work_status === "Work in progress") {
+      if (
+        !data.estimated_physical_progress ||
+        !data.estimated_financial_overview ||
+        !data.expected_completion_date
+      ) {
+        return res.status(400).send({
+          message:
+            "Please provide estimated physical progress, estimated financial overview, and expected completion date",
+        });
+      }
+      const progressDetails = await postProgressDetails(data);
+      if (progressDetails.affectedRows === 0) {
+        return res
+          .status(404)
+          .send({ message: "Failed to update progress details" });
+      }
+      return res
+        .status(200)
+        .send({ message: "Progress details updated successfully" });
+    }
+
+    return res
+      .status(400)
+      .send({ message: "Invalid request work id not found" });
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
+
+const getLatestWorkDetails = async (req, res) => {
+  try {
+    const result = await findLatestWorkDeatils();
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .send({ message: "Failed to get the latest work details" });
+    } else {
+      return res
+        .status(200)
+        .send({ message: "Latest work details found", data: result });
+    }
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+};
+
+module.exports = { postProgressData, ProgressDetails, getWorkStatus, getLatestWorkDetails };
